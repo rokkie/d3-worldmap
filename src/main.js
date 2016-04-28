@@ -29,21 +29,29 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   svg.call(zoom);
 
-  d3.json('var/world-map.json', function (error, data) {
-    if (error) { throw error; }
+  var pWorldMap = new Promise(function (resolve, reject) {
+    d3.json('var/world-map.json', function (err, data) {
+      if (err) { reject(err); }
+      resolve(data);
+    });
+  });
 
-    var countries = topojson.feature(data, data.objects.countries);
+  var pTraffic = new Promise(function (resolve, reject) {
+    d3.csv('var/traffic.csv', function (err, data) {
+      if (err) { reject(err); }
+      resolve(data);
+    });
+  });
+
+  Promise.all([pWorldMap, pTraffic]).then(function (data) {
+    var countries = topojson.feature(data[0], data[0].objects.countries);
 
     g.append('path')
       .datum(countries)
       .attr('d', path);
-  });
-
-  d3.csv('var/traffic.csv', function (error, data) {
-    if (error) { throw error; }
 
     g.selectAll('line')
-      .data(data)
+      .data(data[1])
       .enter()
       .append('line')
       .attr('x1', function (d) {
