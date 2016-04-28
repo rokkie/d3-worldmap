@@ -38,4 +38,28 @@ document.addEventListener('DOMContentLoaded', function () {
       .datum(countries)
       .attr('d', path);
   });
+
+  d3.csv('var/traffic.csv', function (error, data) {
+    if (error) { throw error; }
+
+    g.selectAll('line')
+      .data(data)
+      .enter()
+      .append('line')
+      .attr('x1', function (d) {
+        return projection([d.from_lon, d.from_lat])[0];
+      })
+      .attr('y1', function (d) {
+        return projection([d.from_lon, d.from_lat])[1];
+      })
+      .attr('x2', function (d) {
+        return projection([d.to_lon, d.to_lat])[0];
+      })
+      .attr('y2', function (d) {
+        return projection([d.to_lon, d.to_lat])[1];
+      })
+      .attr('style', function (d) {
+        return 'stroke: rgb(255,0,0); stroke-width: ' + d.bytes_count / 100000;
+      });
+  });
 });
