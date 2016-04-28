@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       g.attr('transform', 'translate(' + tr + ') scale(' + scale + ')');
       g.selectAll('path')
-        .attr('d', path.projection(projection));
+        .attr('d', path);
     });
   svg.call(zoom);
 
