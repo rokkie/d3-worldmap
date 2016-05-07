@@ -1,5 +1,36 @@
+div.tooltip {
+  box-sizing: border-box;
+  position: absolute;
+  padding: 2px;
+  font: 12px sans-serif;
+  background: lightsteelblue;
+  border: 2px;
+  border-radius: 4px;
+  pointer-events: none;
+}
+  div.tooltip h3 {
+    margin: 5px 0;
+    text-align: center;
+  }
+  div.tooltip .row {
+    display: flex;
+    margin: 3px 0;
+  }
+  div.tooltip .dt {
+    width: 100px;
+    margin: 0 3px 0 0;
+    font-weight: bold;
+  }
+  div.tooltip .dt:after {
+    content: ':';
+  }
+  div.tooltip .dd {
+    flex: 1;
+    white-space: nowrap;
+  }
+
 path {
-    stroke: white;
-    stroke-width: 0.25px;
-    fill: grey;
+  stroke: white;
+  stroke-width: 0.25px;
+  fill: grey;
 }
