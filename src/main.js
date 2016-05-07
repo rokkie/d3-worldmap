@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   var pTraffic = new Promise(function (resolve, reject) {
-    d3.csv('var/traffic.csv', function (err, data) {
+    d3.json('http://localhost:9090/transfers', function (err, data) {
       if (err) { reject(err); }
       resolve(data);
     });
@@ -55,19 +55,19 @@ document.addEventListener('DOMContentLoaded', function () {
       .enter()
       .append('line')
       .attr('x1', function (d) {
-        return projection([d.from_lon, d.from_lat])[0];
+        return projection([d.geoSrc.longitude, d.geoSrc.latitude])[0];
       })
       .attr('y1', function (d) {
-        return projection([d.from_lon, d.from_lat])[1];
+        return projection([d.geoSrc.longitude, d.geoSrc.latitude])[1];
       })
       .attr('x2', function (d) {
-        return projection([d.to_lon, d.to_lat])[0];
+        return projection([d.geoDst.longitude, d.geoDst.latitude])[0];
       })
       .attr('y2', function (d) {
-        return projection([d.to_lon, d.to_lat])[1];
+        return projection([d.geoDst.longitude, d.geoDst.latitude])[1];
       })
       .attr('style', function (d) {
-        return 'stroke: rgb(255,0,0); stroke-width: ' + d.bytes_count / 100000;
+        return 'stroke: rgb(255,0,0); stroke-width: ' + d.nbytes_size / 10000000;
       });
   });
 });
