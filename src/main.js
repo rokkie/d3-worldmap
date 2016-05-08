@@ -138,15 +138,22 @@ document.addEventListener('DOMContentLoaded', function () {
       .datum(countries)
       .attr('d', path);
 
-    g.selectAll('line')
+    g.selectAll()
         .data(data[1])
       .enter()
-        .append('line')
-        .attr('x1', geoFn('src', 'lon'))
-        .attr('y1', geoFn('src', 'lat'))
-        .attr('x2', geoFn('dst', 'lon'))
-        .attr('y2', geoFn('dst', 'lat'))
-        .attr('style', function (d) { return 'stroke: ' + scale(d.nbytes_size) + '; stroke-width: 2px'; })
+        .append('path')
+        .datum(function (d) {
+          d.type = 'LineString';
+          d.coordinates = [
+            [d.geoSrc.longitude, d.geoSrc.latitude],
+            [d.geoDst.longitude, d.geoDst.latitude]
+          ];
+          
+          return d;
+        })
+        .classed('route', true)
+        .attr('d', path)
+        .attr('style', function (d) { return 'stroke: ' + scale(d.nbytes_size) + ';'; })
         .on('mouseenter', function (d) {
           tooltipTra.transition()
             .duration(200)

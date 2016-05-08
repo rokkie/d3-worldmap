@@ -34,3 +34,8 @@ path {
   stroke-width: 0.25px;
   fill: grey;
 }
+
+path.route {
+  stroke-width: 2px;
+  fill: none;
+}
