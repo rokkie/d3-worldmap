@@ -29,7 +29,11 @@ div.tooltip {
     white-space: nowrap;
   }
 
-path {
+svg#loading-anim {
+  margin: 265px 0 0 445px;
+}
+
+path#worldmap {
   stroke: white;
   stroke-width: 0.25px;
   fill: grey;

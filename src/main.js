@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
       svg, g, projection, path, zoom;
 
   svg = d3.select('body').append('svg')
+    .attr('id', 'worldmap')
     .attr('width', width)
     .attr('height', height);
 
@@ -47,6 +48,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var countries   = topojson.feature(data[0], data[0].objects.countries),
         max         = d3.max(data[1], function (d) { return parseInt(d.nbytes_size, 10); }),
         scale       = d3.scale.linear().domain([0, max]).range(['green', 'red']),
+        loadingAnim = d3.select('svg#loading-anim'),
         tooltipLoc  = d3.select('body').append('div') .attr('class', 'tooltip') .style('opacity', 0),
         tooltipTra  = d3.select('body').append('div') .attr('class', 'tooltip') .style('opacity', 0),
         geoFn       = function (dir, or) {
@@ -136,6 +138,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     g.append('path')
       .datum(countries)
+      .attr('id', 'worldmap')
       .attr('d', path);
 
     g.selectAll()
@@ -210,5 +213,6 @@ document.addEventListener('DOMContentLoaded', function () {
             .style('opacity', 0);
         });
 
+    loadingAnim.style('display', 'none');
   });
 });
