@@ -3,12 +3,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
   var width  = 960,
       height = 600,
-      svg, g, projection, path, zoom;
+      svg, def, g, projection, path, zoom;
 
   svg = d3.select('body').append('svg')
     .attr('id', 'worldmap')
     .attr('width', width)
     .attr('height', height);
+  
+  def = svg.append('defs');
+
+  def.append('marker')
+    .attr('id', 'arrow-head')
+    .attr('markerWidth', 4)
+    .attr('markerHeight', 4)
+    .attr('refX', 0)
+    .attr('refY', 2)
+    .attr('orient', 'auto')
+    .append('path')
+    .attr('d', 'M0,0 L0,4 L4,2 L0,0')
+    .style({fill: '#000000'});
 
   g = svg.append('g');
 
@@ -156,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .classed('route', true)
         .attr('d', path)
-        .attr('style', function (d) { return 'stroke: ' + scale(d.nbytes_size) + ';'; })
+        .attr('style', function (d) { return 'stroke: ' + scale(d.nbytes_size) + '; marker-end: url(#arrow-head)'; })
         .on('mouseenter', function (d) {
           tooltipTra.transition()
             .duration(200)
@@ -171,47 +184,47 @@ document.addEventListener('DOMContentLoaded', function () {
             .style('opacity', 0);
         });
 
-    g.selectAll('dot')
-        .data(data[1])
-      .enter()
-        .append('circle')
-        .attr('r', 3)
-        .attr('cx', geoFn('src', 'lon'))
-        .attr('cy', geoFn('src', 'lat'))
-        .on('mouseenter', function (d) {
-          tooltipLoc.transition()
-            .duration(200)
-            .style('opacity', 0.9);
-          tooltipLoc.html(tooltipLocHtml(d.geoDst))
-            .style('left', (d3.event.pageX) + 'px')
-            .style('top',  (d3.event.pageY) + 'px');
-        })
-        .on('mouseleave', function (d) {
-          tooltipLoc.transition()
-            .duration(500)
-            .style('opacity', 0);
-        });
+    // g.selectAll('dot')
+    //     .data(data[1])
+    //   .enter()
+    //     .append('circle')
+    //     .attr('r', 3)
+    //     .attr('cx', geoFn('src', 'lon'))
+    //     .attr('cy', geoFn('src', 'lat'))
+    //     .on('mouseenter', function (d) {
+    //       tooltipLoc.transition()
+    //         .duration(200)
+    //         .style('opacity', 0.9);
+    //       tooltipLoc.html(tooltipLocHtml(d.geoDst))
+    //         .style('left', (d3.event.pageX) + 'px')
+    //         .style('top',  (d3.event.pageY) + 'px');
+    //     })
+    //     .on('mouseleave', function (d) {
+    //       tooltipLoc.transition()
+    //         .duration(500)
+    //         .style('opacity', 0);
+    //     });
 
-    g.selectAll('dot')
-        .data(data[1])
-      .enter()
-        .append('circle')
-        .attr('r', 3)
-        .attr('cx', geoFn('dst', 'lon'))
-        .attr('cy', geoFn('dst', 'lat'))
-        .on('mouseenter', function (d) {
-          tooltipLoc.transition()
-            .duration(200)
-            .style('opacity', 0.9);
-          tooltipLoc.html(tooltipLocHtml(d.geoDst))
-            .style('left', (d3.event.pageX) + 'px')
-            .style('top',  (d3.event.pageY) + 'px');
-        })
-        .on('mouseleave', function (d) {
-          tooltipLoc.transition()
-            .duration(500)
-            .style('opacity', 0);
-        });
+    // g.selectAll('dot')
+    //     .data(data[1])
+    //   .enter()
+    //     .append('circle')
+    //     .attr('r', 3)
+    //     .attr('cx', geoFn('dst', 'lon'))
+    //     .attr('cy', geoFn('dst', 'lat'))
+    //     .on('mouseenter', function (d) {
+    //       tooltipLoc.transition()
+    //         .duration(200)
+    //         .style('opacity', 0.9);
+    //       tooltipLoc.html(tooltipLocHtml(d.geoDst))
+    //         .style('left', (d3.event.pageX) + 'px')
+    //         .style('top',  (d3.event.pageY) + 'px');
+    //     })
+    //     .on('mouseleave', function (d) {
+    //       tooltipLoc.transition()
+    //         .duration(500)
+    //         .style('opacity', 0);
+    //     });
 
     loadingAnim.style('display', 'none');
   });
