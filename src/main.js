@@ -53,10 +53,10 @@ document.addEventListener('DOMContentLoaded', function () {
         tooltipTra  = d3.select('body').append('div') .attr('class', 'tooltip') .style('opacity', 0),
         geoFn       = function (dir, or) {
           var prop = 'geo' + dir[0].toUpperCase() + dir.slice(1),
-            idx  = ['lon', 'lat'].indexOf(or);
+              idx  = ['lon', 'lat'].indexOf(or);
           return function (d) {
             return projection([d[prop].longitude, d[prop].latitude])[idx];
-          }
+          };
         },
         dateFormat = function (d) {
           return d.toLocaleTimeString(navigator.language || 'en-US', {
@@ -72,11 +72,11 @@ document.addEventListener('DOMContentLoaded', function () {
           });
         },
         elapsed = function (start, end) {
-          var elapsed = end - start,
-            millis    = (elapsed % 1000),
-            seconds   = Math.floor(elapsed / 1000),
-            minutes   = Math.floor(elapsed / 1000 / 60),
-            hours     = Math.floor(elapsed / 1000 / 60 / 60);
+          var elapsed  = end - start,
+              millis   = (elapsed % 1000),
+              seconds  = Math.floor(elapsed / 1000),
+              minutes  = Math.floor(elapsed / 1000 / 60),
+              hours    = Math.floor(elapsed / 1000 / 60 / 60);
 
           return `Operation took: ${millis} milliseconds, ${seconds} seconds, ${minutes} minutes, ${hours} hours`;
         },
@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function () {
             [d.geoSrc.longitude, d.geoSrc.latitude],
             [d.geoDst.longitude, d.geoDst.latitude]
           ];
-          
+
           return d;
         })
         .classed('route', true)
