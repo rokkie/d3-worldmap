@@ -35,7 +35,9 @@ export default function main () {
 
   var updateData = function (data, scale) {
     var pr = g.selectAll('path.route')
-      .data(data);
+      .data(data, function (d) {
+        return d.PID;
+      });
 
 
     pr.enter().append('path')
@@ -223,7 +225,7 @@ export default function main () {
       });
 
       el.dispatchEvent(evt);
-    }, 10);
+    }, 100);
 
 
     /*
