@@ -5,6 +5,7 @@
   "private": true,
   "main": "index.js",
   "scripts": {
+    "devel": "webpack-dev-server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,6 +20,8 @@
   "homepage": "https://gitlab.com/hva-nikhef/d3-worldmap#README",
   "devDependencies": {
     "eslint": "^2.10.1",
-    "jshint": "^2.9.2"
+    "jshint": "^2.9.2",
+    "webpack": "^2.1.0-beta",
+    "webpack-dev-server": "^2.1.0-beta"
   }
 }
