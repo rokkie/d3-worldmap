@@ -1,0 +1,24 @@
+{
+  "name": "d3-worldmap",
+  "version": "0.0.1",
+  "description": "Zoomable world map using d3",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/hva-nikhef/d3-worldmap.git"
+  },
+  "author": "Rocco Bruyn",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://gitlab.com/hva-nikhef/d3-worldmap/issues"
+  },
+  "homepage": "https://gitlab.com/hva-nikhef/d3-worldmap#README",
+  "devDependencies": {
+    "eslint": "^2.10.1",
+    "jshint": "^2.9.2"
+  }
+}
