@@ -225,7 +225,7 @@ export default function main () {
       });
 
       el.dispatchEvent(evt);
-    }, 100);
+    }, 20);
 
 
     /*
