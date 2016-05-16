@@ -1,4 +1,4 @@
-const TRIANGLE_SIZE = 5;
+import {time} from 'd3';
 
 /**
  *
@@ -26,21 +26,46 @@ export function pointOnCircle (p, a, d, triangleSize) {
 
 /**
  *
- * @param   {Object}  svg
- * @param   {Object}  path
- * @param   {Number}  triangleSize
- * @returns {String|Selection<Datum>|Update<Datum>}
+ * @param   {Date}    d Date to format
+ * @returns {String}
  */
-export function arrowOnLine (svg, path, triangleSize = TRIANGLE_SIZE) {
-  let arrowSize   = triangleSize,
-      totalLength = path.getTotalLength(),
-      startPoint  = path.getPointAtLength(totalLength - arrowSize),
-      endPoint    = path.getPointAtLength(totalLength),
-      arrow       = svg.append('polygon'),
-      angle       = angleBetweenPoints(startPoint, endPoint),
-      p1          = pointOnCircle(endPoint, angle, 0, arrowSize),
-      p2          = pointOnCircle(endPoint, angle, 135, arrowSize),
-      p3          = pointOnCircle(endPoint, angle, -135, arrowSize);
+export let dateFormat = time.format.utc('%a, %b %d, %Y, %H:%M:%S UTC');
 
-  return arrow.attr('points', `${p1} ${p2} ${p3}`);
+/**
+ *
+ * @param   {Number}  start
+ * @param   {Number}  end
+ * @returns {String}
+ */
+export function elapsed (start, end) {
+  let elapsed = end - start,
+      millis  = (elapsed % 1000),
+      seconds = Math.floor(elapsed / 1000),
+      minutes = Math.floor(elapsed / 1000 / 60),
+      hours   = Math.floor(elapsed / 1000 / 60 / 60);
+
+  return `Operation took: ${millis} milliseconds, ${seconds} seconds, ${minutes} minutes, ${hours} hours`;
+}
+
+/**
+ *
+ * @param   {Number}  bytes
+ * @returns {String}
+ */
+export function humanFileSize (bytes) {
+  let i = Math.floor(Math.log(bytes) / Math.log(1024));
+  return (bytes / Math.pow(1024, i)).toFixed(2) * 1 + ' ' + ['KiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB'][i];
+}
+
+/**
+ *
+ * @param   {Number}  bytes
+ * @param   {Number}  duration
+ * @returns {String}
+ */
+export function speed (bytes, duration) {
+  let bps  = bytes / (duration / 1000),
+      size = humanFileSize(bps);
+
+  return `${size} / s`;
 }

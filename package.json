@@ -23,5 +23,9 @@
     "jshint": "^2.9.2",
     "webpack": "^2.1.0-beta",
     "webpack-dev-server": "^2.1.0-beta"
+  },
+  "dependencies": {
+    "d3": "^3.5.17",
+    "topojson": "^1.6.26"
   }
 }

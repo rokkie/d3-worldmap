@@ -15,7 +15,7 @@
   "evil"     : false,
   "expr"     : false,
   "forin"    : true,
-  "latedef"  : true,
+  "latedef"  : false,
   "loopfunc" : false,
   "noarg"    : true,
   "quotmark" : "single",
