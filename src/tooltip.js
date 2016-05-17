@@ -36,7 +36,7 @@ function createRow (row) {
   return `
   <div class="row">
     <div class="dt">${row.label}</div>
-    <div class="dd">${row.fmtFn ? row.fmtFn(row.value) : row.value}</div>
+    <div class="dd">${row.value}</div>
   </div>`;
 }
 
