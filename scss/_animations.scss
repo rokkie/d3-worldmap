@@ -1,0 +1,33 @@
+@keyframes flash {
+  from, 50%, to {
+    opacity: 1;
+  }
+
+  25%, 75% {
+    opacity: 0;
+  }
+}
+
+.flash {
+  animation-name: flash;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+}
+
+
+@keyframes rotate-quarter {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(90deg);
+  }
+}
+
+.rotate-quarter {
+  animation-name           : rotate-quarter;
+  animation-duration       : 1s;
+  animation-iteration-count: infinite;
+  transform-origin         : 50% 50%;
+}
