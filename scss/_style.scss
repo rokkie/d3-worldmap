@@ -5,13 +5,16 @@
 }
 
 #wrap {
-  width : $wrap-width;
-  height: $wrap-height;
+  box-sizing    : border-box;
+  width         : $wrap-width;
+  height        : $wrap-height;
+  display       : flex;
+  flex-direction: column;
 }
 
 #worldmap {
+  flex         : 1;
   width        : 100%;
-  height       : 100%;
   fill         : $map-land-color;
   stroke       : $map-border-color;
   stroke-width : 0.25px;
@@ -67,8 +70,8 @@ div.tooltip {
 }
 
 div.controls {
-  box-sizing     : border-box;
   width          : 100%;
+  margin         : 3px;
   display        : flex;
   align-items    : center;
   justify-content: center;
