@@ -9,7 +9,7 @@ const STATE_PAUSED  = 'paused';
 const MODE_LOOPING  = 'looping';
 const MODE_ENDING   = 'ending';
 
-var interval, state, mode;
+let interval, state, mode;
 
 /**
  *
@@ -89,7 +89,7 @@ function play (container) {
 }
 
 /**
- * 
+ *
  */
 function loop () {
   mode = (MODE_LOOPING === mode) ? MODE_ENDING : MODE_LOOPING;

@@ -1,10 +1,9 @@
 import * as worldmap from './worldmap';
-import * as controls from  './controls';
+import * as controls from './controls';
 
 const URL_MAPDATA   = '/data/world-map.json';
 const URL_TRANSFERS = 'http://localhost:9090/transfers';
-
-const AUTOPLAY = false;
+const AUTOPLAY      = false;
 
 /**
  * Application entry
