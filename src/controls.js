@@ -6,25 +6,31 @@ const TICK_INTERVAL = 20;
 const TICK_STEP     = 100;
 const STATE_PLAYING = 'playing';
 const STATE_PAUSED  = 'paused';
+const MODE_LOOPING  = 'looping';
+const MODE_ENDING   = 'ending';
 
-var interval, state;
+var interval, state, mode;
 
 /**
  *
  * @param {d3.selection}  container
  */
 function tick (container) {
-  let el  = container.select('.track'),
-      val = parseInt(el.attr('value'), 10),
-      max = parseInt(el.attr('max'), 10),
-      newVal;
+  let el  = container.select('input[type="range"]'),
+      val = parseInt(el.property('value'), 10),
+      max = parseInt(el.property('max'), 10),
+      min, newVal;
 
   if (max <= val) {
-    clearInterval(interval);
-    pause();
+    if (MODE_LOOPING === mode) {
+      min = parseInt(el.property('min'), 10);
+      el.property('value', min);
+    } else {
+      pause();
+    }
   } else {
     newVal = val + TICK_STEP;
-    el.attr('value', (max > newVal) ? newVal : max);
+    el.property('value', d3.min([newVal, max]));
   }
 
   el.node().dispatchEvent(new Event('change', {
@@ -83,6 +89,13 @@ function play (container) {
 }
 
 /**
+ * 
+ */
+function loop () {
+  mode = (MODE_LOOPING === mode) ? MODE_ENDING : MODE_LOOPING;
+}
+
+/**
  *
  * @param {d3.selection}  container
  * @param {Array}         data
@@ -99,21 +112,36 @@ export function init (container, data, autoplay = true) {
     .classed('controls', true);
 
   controls
+    .append('span')
+    .classed('btn icon-play3', true)
+    .on('click', play.bind(undefined, controls));
+
+  controls
+    .append('span')
+    .classed('btn icon-pause2', true)
+    .on('click', pause);
+
+  controls
+    .append('span')
+    .classed('btn icon-loop2', true)
+    .on('click', loop);
+
+  controls
     .append('input')
     .attr('type', 'range')
     .attr('min', minDate)
     .attr('max', maxDate)
     .attr('value', minDate)
-    .classed('track', true)
-    .on('change', onChange(container, data));
+    .on('change', onChange(controls, data));
 
   // span to container current date/time
   controls
     .append('span')
     .classed('datetime', true);
 
-  // set initial state
+  // set initial state and mode
   state = STATE_PAUSED;
+  mode  = MODE_ENDING;
 
   // autoplay
   if (autoplay) { play(controls); }

@@ -3,9 +3,6 @@ import topojson from 'topojson';
 import * as tooltip from './tooltip';
 import * as utils from './utils';
 
-const MAP_WIDTH  = 960;
-const MAP_HEIGHT = 600;
-
 let g, projection, path;
 
 /**
@@ -180,8 +177,6 @@ export function draw(container, data) {
   // insert svg element into the container
   svg = container.insert('svg')
     .attr('id', 'worldmap')
-    .attr('width', MAP_WIDTH)
-    .attr('height', MAP_HEIGHT)
     .call(zoom);  // attach zoom handler to svg
 
   // append a group to the svg element
@@ -190,6 +185,5 @@ export function draw(container, data) {
   // draw countries as path
   g.append('path')
     .datum(countries)
-    .attr('id', 'worldmap')
     .attr('d', path);
 }

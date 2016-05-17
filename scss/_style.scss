@@ -1,0 +1,98 @@
+#loading-anim {
+  margin : 265px 0 0 445px;
+}
+
+#wrap {
+  width : $wrap-width;
+  height: $wrap-height;
+}
+
+#worldmap {
+  width        : 100%;
+  height       : 100%;
+  fill         : $map-land-color;
+  stroke       : $map-border-color;
+  stroke-width : 0.25px;
+
+  g.route-group {
+    path.route {
+      stroke-width : 2px;
+      fill         : none;
+    }
+
+    circle,
+    polygon {
+      stroke: none;
+      fill  : $map-marker-color;
+    }
+  }
+}
+
+div.tooltip {
+  box-sizing     : border-box;
+  position       : absolute;
+  padding        : 2px;
+  font           : 12px sans-serif;
+  background     : $tooltip-background-color;
+  border         : 2px;
+  border-radius  : 4px;
+  pointer-events : none;
+
+  h3 {
+    margin     : 5px 0;
+    text-align : center;
+  }
+
+  .row {
+    display : flex;
+    margin  : 3px 0;
+  }
+
+  .dt {
+    width       : 100px;
+    margin      : 0 3px 0 0;
+    font-weight : bold;
+  }
+
+  .dt:after {
+    content : ':';
+  }
+
+  .dd {
+    flex        : 1;
+    white-space : nowrap;
+  }
+}
+
+div.controls {
+  box-sizing     : border-box;
+  width          : 100%;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+
+  .btn:hover {
+    cursor: pointer;
+  }
+  span.btn {
+    margin: 0 5px;
+  }
+  span.btn:first-child {
+    margin-left: 0;
+  }
+  span.btn:last-child {
+    margin-right: 0;
+  }
+
+  input[type="range"] {
+    flex: 1;
+    margin: 0 5px;
+  }
+
+  span.datetime {
+    width: 300px;
+    margin: 0 0 0 5px;
+    font-family: digitaldream, monospace;
+    font-size: 12px;
+  }
+}

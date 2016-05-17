@@ -4,7 +4,7 @@ import * as controls from  './controls';
 const URL_MAPDATA   = '/data/world-map.json';
 const URL_TRANSFERS = 'http://localhost:9090/transfers';
 
-const AUTOPLAY = true;
+const AUTOPLAY = false;
 
 /**
  * Application entry
@@ -30,13 +30,13 @@ export default function main () {
   Promise.all([pWorldMap, pTraffic]).then((data) => {
     let mapdata = data[0],
         traffic = data[1],
-        body    = d3.select('body');
+        wrap    = d3.select('#wrap');
 
     // draw the map and initialize the controls
-    worldmap.draw(body, mapdata);
-    controls.init(body, traffic, AUTOPLAY);
+    worldmap.draw(wrap, mapdata);
+    controls.init(wrap, traffic, AUTOPLAY);
 
-    // hide the loading animation
-    d3.select('#loading-anim').style('display', 'none');
+    // remove the loading animation
+    d3.select('#loading-anim').remove();
   });
 }
