@@ -6,6 +6,10 @@ import * as utils from './utils';
 let g, projection, path;
 
 /**
+ * Function factory for extracting coordinates
+ *
+ * Creates a function that extracts the specified coordinates
+ * from a datum. Used as a helper to prevent clutter.
  *
  * @param   {String}  direction   src|dst
  * @param   {String}  orientation lon|lat
@@ -21,8 +25,12 @@ function geoFn (direction, orientation) {
 }
 
 /**
+ * Create object for transfer tooltip
  *
- * @param   {Object}  d
+ * Create an object that can be passed to tooltip.show
+ * Used as a helper to prevent clutter.
+ *
+ * @param   {Object}  d Datum
  * @returns {{header: string, rows: *[]}}
  */
 function tooltipDataTransfer(d) {
@@ -53,8 +61,12 @@ function tooltipDataTransfer(d) {
 }
 
 /**
+ * Create object for location tooltip
  *
- * @param   {Object}  geo
+ * Create an object that can be passed to tooltip.show
+ * Used as a helper to prevent clutter.
+
+ * @param   {Object}  geo Geo data
  * @returns {{header: *, rows: *[]}}
  */
 function tooltipDataLocation(geo) {
@@ -74,9 +86,19 @@ function tooltipDataLocation(geo) {
 }
 
 /**
+ * Update the map
  *
- * @param {Array}     data
- * @param {Function}  scaleFn
+ * Binds data to an svg group using the PID property as key.
+ *
+ * For each datum, add a path, a circle and a polygon.
+ * The path is the 'route' of the transfer. Shows a tooltip with transfer details on mouseover.
+ * The circle is the source of the transfer. Show a tooltip with geo details on mouseover.
+ * The polygon (arrow) is the destination of the transfer. Show a tooltip with geo details on mouseover.
+ *
+ * Remove groups with no corresponding data.
+ *
+ * @param {Array}     data    Domain data
+ * @param {Function}  scaleFn Scale function
  */
 export function update(data, scaleFn) {
   let rg, enter;
@@ -114,6 +136,8 @@ export function update(data, scaleFn) {
       d3.select(this.parentElement)
         .append('polygon')
         .attr('points', function (p, d) {
+          // draw arrow manually because svg markers have no mousevents,
+          // which would prevent showing a tooltip on hoover
           let arrowSize   = 4,
               totalLength = p.getTotalLength(),
               startPoint  = p.getPointAtLength(totalLength - arrowSize),
@@ -143,12 +167,16 @@ export function update(data, scaleFn) {
       tooltip.show(data);
     });
 
+  // remove the entire group on exit
   rg.exit().remove();
 }
 
 /**
+ * Draw map
  *
- * @param {d3.selection}  container D3 single element selection
+ * Draws a map into the specified container using TopoJSON.
+ *
+ * @param {d3.selection}  container Element to contain the map
  * @param {Array}         data      TopoJSON
  */
 export function draw(container, data) {

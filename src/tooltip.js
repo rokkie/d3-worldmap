@@ -1,22 +1,36 @@
-var tip;
+import d3 from 'd3';
 
+let tip;
+
+/**
+ * Get tooltip
+ *
+ * Gets tooltip. Creates it if it does not exists yet.
+ * Reuses that afterwards.
+ *
+ * @returns {*} Tooltip
+ */
 function get () {
   if (!tip) {
-    tip = d3.select('body').append('div').classed('tooltip', true).style('opacity', 0);
+    tip = d3.select('body')
+      .append('div')
+      .classed('tooltip', true)
+      .style('opacity', 0);
   }
+
   return tip;
 }
 
 /**
+ * Create a tooltip row
  *
- * tooltipRow({
+ * createRow({
  *  label: 'Foo',
- *  value: 'bar',
- *  fmtFn: x => x
+ *  value: 'bar'
  * });
  *
- * @param   {Object}  row
- * @returns {String}
+ * @param   {Object}  row Object with a label and value
+ * @returns {String}      HTML for a row
  */
 function createRow (row) {
   return `
@@ -27,18 +41,18 @@ function createRow (row) {
 }
 
 /**
+ * Create a tooltip
  *
- * tooltip({
+ * create({
  *  header: 'FooBar',
  *  rows  : [{
  *    label: 'Foo',
- *    value: 'bar',
- *    fmtFn: x => x
+ *    value: 'bar'
  *  }]
  * });
  *
- * @param   {Object}  data
- * @returns {String}
+ * @param   {Object}  data  Object with a header and rows
+ * @returns {String}        HTML for a tooltip
  */
 function create (data) {
   return `
@@ -47,8 +61,9 @@ function create (data) {
 }
 
 /**
+ * Show tooltip
  *
- * @param {Object}  data
+ * @param {Object}  data  Object with a header and rows
  */
 export function show (data) {
   let html = create(data);
@@ -63,7 +78,7 @@ export function show (data) {
 }
 
 /**
- *
+ * Hide tooltip
  */
 export function hide () {
   get()

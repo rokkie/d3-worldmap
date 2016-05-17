@@ -12,8 +12,14 @@ const MODE_ENDING   = 'ending';
 let interval, state, mode;
 
 /**
+ * Tick function for playback
  *
- * @param {d3.selection}  container
+ * Adds TICK_STEP milliseconds to actual time and updates track with new value.
+ * Pauses playback if end of track is reached, unless looping is on in which
+ * case it will start at the beginning of the track.
+ * Dispatches event to notify value change.
+ *
+ * @param {d3.selection}  container Element that contains the track
  */
 function tick (container) {
   let el  = container.select('input[type="range"]'),
@@ -21,18 +27,26 @@ function tick (container) {
       max = parseInt(el.property('max'), 10),
       min, newVal;
 
+  // if the maximum is lower than the current value
   if (max <= val) {
+    // and we're in looping mode
     if (MODE_LOOPING === mode) {
+      // set the value to the minimum
       min = parseInt(el.property('min'), 10);
       el.property('value', min);
     } else {
+      // otherwise pause playback
       pause();
     }
   } else {
+    // otherwise ass TICK_STEP to the current value
     newVal = val + TICK_STEP;
+
+    // set the new value to be the lowest of the newly calculated or the maximum
     el.property('value', d3.min([newVal, max]));
   }
 
+  // dispatch an event to notify the change of value
   el.node().dispatchEvent(new Event('change', {
     bubbles   : true,
     cancelable: false
@@ -40,21 +54,27 @@ function tick (container) {
 }
 
 /**
+ * Function factory for change callback
  *
- * @param   {d3.selection}  container
- * @param   {Array}         data
- * @returns {Function}
+ * Creates a function to be used as a callback for the change event.
+ * Returned function updates track with actual time and updates map
+ * with filtered domain data based on the actual time.
+ *
+ * @param   {d3.selection}  container Element that contains the controls
+ * @param   {Array}         data      Domain data
+ * @returns {Function}                Callback for change event
  */
 function onChange (container, data) {
   let maxBytes = d3.max(data, (d) => { return parseInt(d.nbytes_size, 10); }),
-      scaleFn  = d3.scale.linear().domain([0, maxBytes]).range(['green', 'red']);
+      scaleFn  = d3.scale.linear().domain([0, maxBytes]).range(['green', 'red']),
+      datetime = container.select('span.datetime');
 
   return function () {
     let timestamp = parseInt(d3.event.target.value, 10),
         updata;
 
     // update view with new date/time
-    container.select('span.datetime').text(utils.dateFormat(new Date(timestamp)));
+    datetime.text(utils.dateFormat(new Date(timestamp)));
 
     // filter the dataset based on the datetime
     updata = data.filter((d) => {
@@ -70,7 +90,7 @@ function onChange (container, data) {
 }
 
 /**
- *
+ * Pause playback
  */
 function pause () {
   clearInterval(interval);
@@ -78,8 +98,9 @@ function pause () {
 }
 
 /**
+ * Start playback
  *
- * @param {d3.selection}  container
+ * @param {d3.selection}  container Element that contains the track
  */
 function play (container) {
   if (STATE_PLAYING === state) { return; }
@@ -89,16 +110,20 @@ function play (container) {
 }
 
 /**
- *
+ * Toggle looping of playback
  */
 function loop () {
   mode = (MODE_LOOPING === mode) ? MODE_ENDING : MODE_LOOPING;
 }
 
 /**
+ * Initialize the controls
  *
- * @param {d3.selection}  container
- * @param {Array}         data
+ * Draws player controls in the specified container.
+ * Should be called before anything else.
+ *
+ * @param {d3.selection}  container Element to put the controls in
+ * @param {Array}         data      Domain data
  * @param {Boolean}       autoplay  [optional] Default to true
  */
 export function init (container, data, autoplay = true) {
@@ -106,38 +131,42 @@ export function init (container, data, autoplay = true) {
       maxDate = d3.max(data, (d) => { return Date.parse(d.end_timestamp); }),
       controls;
 
-  // create a range input for the track
+  // append container
   controls = container
     .append('div')
     .classed('controls', true);
 
+  // append play button
   controls
     .append('span')
     .classed('btn icon-play3', true)
     .on('click', play.bind(undefined, controls));
 
+  // append pause button
   controls
     .append('span')
     .classed('btn icon-pause2', true)
     .on('click', pause);
 
+  // append loop button
   controls
     .append('span')
     .classed('btn icon-loop2', true)
     .on('click', loop);
 
+  // append container for date/time
   controls
-    .append('input')
+    .append('span')
+    .classed('datetime', true);
+
+  // append track
+  controls
+    .insert('input', ':last-child')
     .attr('type', 'range')
     .attr('min', minDate)
     .attr('max', maxDate)
     .attr('value', minDate)
     .on('change', onChange(controls, data));
-
-  // span to container current date/time
-  controls
-    .append('span')
-    .classed('datetime', true);
 
   // set initial state and mode
   state = STATE_PAUSED;

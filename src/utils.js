@@ -25,17 +25,19 @@ export function pointOnCircle (p, a, d, triangleSize) {
 }
 
 /**
+ * Format a date to human readable form in UTC
  *
  * @param   {Date}    d Date to format
- * @returns {String}
+ * @returns {String}    Human readable format
  */
 export let dateFormat = time.format.utc('%a, %b %d, %Y, %H:%M:%S UTC');
 
 /**
+ * Format elapsed time in human readable form
  *
- * @param   {Number}  start
- * @param   {Number}  end
- * @returns {String}
+ * @param   {Number}  start Start timestamp (milliseconds)
+ * @param   {Number}  end   End timestamp (milliseconds)
+ * @returns {String}        Elapsed time in human readable form
  */
 export function elapsed (start, end) {
   let elapsed = end - start,
@@ -48,9 +50,14 @@ export function elapsed (start, end) {
 }
 
 /**
+ * Format number of bytes to human readable form
  *
- * @param   {Number}  bytes
- * @returns {String}
+ * e.g.:
+ * 1024    -> 1 KiB
+ * 1048576 -> 1 MiB
+ *
+ * @param   {Number}  bytes Number of bytes
+ * @returns {String}        Human readable format
  */
 export function humanFileSize (bytes) {
   let i = Math.floor(Math.log(bytes) / Math.log(1024));
@@ -58,10 +65,11 @@ export function humanFileSize (bytes) {
 }
 
 /**
+ * Format transfer speed in human readable form
  *
- * @param   {Number}  bytes
- * @param   {Number}  duration
- * @returns {String}
+ * @param   {Number}  bytes     Number of bytes
+ * @param   {Number}  duration  Duration in seconds
+ * @returns {String}            Human readable format
  */
 export function speed (bytes, duration) {
   let bps  = bytes / (duration / 1000),
