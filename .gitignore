@@ -179,3 +179,8 @@ build/bundle.js.map
 ## sass
 public/css/main.css
 
+## docs
+docs/*
+!docs/.gitkeep
+
+
