@@ -9,7 +9,7 @@ const STATE_PAUSED  = 'paused';
 const MODE_LOOPING  = 'looping';
 const MODE_ENDING   = 'ending';
 
-let interval, state, mode;
+let scaleFn, interval, state, mode;
 
 /**
  * Tick function for playback
@@ -65,9 +65,7 @@ function tick (container) {
  * @returns {Function}                Callback for change event
  */
 function onChange (container, data) {
-  let maxBytes = d3.max(data, (d) => { return parseInt(d.nbytes_size, 10); }),
-      scaleFn  = d3.scale.linear().domain([0, maxBytes]).range(['green', 'red']),
-      datetime = container.select('span.datetime');
+  let datetime = ct.select('span.datetime');
 
   return function () {
     let timestamp = parseInt(d3.event.target.value, 10),
@@ -127,9 +125,13 @@ function loop () {
  * @param {Boolean}       autoplay  [optional] Default to true
  */
 export function init (container, data, autoplay = true) {
-  let minDate = d3.min(data, (d) => { return Date.parse(d.start_timestamp); }),
-      maxDate = d3.max(data, (d) => { return Date.parse(d.end_timestamp); }),
+  let minDate  = d3.min(data, (d) => { return Date.parse(d.start_timestamp); }),
+      maxDate  = d3.max(data, (d) => { return Date.parse(d.end_timestamp); }),
+      maxBytes = d3.max(data, (d) => { return parseInt(d.nbytes_size, 10); }),
       controls;
+
+  // create scale function
+  scaleFn = d3.scale.linear().domain([0, maxBytes]).range(['#00ff00', '#0000ff', '#ff0000']);
 
   // append container
   controls = container

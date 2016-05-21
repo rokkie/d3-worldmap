@@ -98,7 +98,7 @@ function tooltipDataLocation(geo) {
  * Remove groups with no corresponding data.
  *
  * @param {Array}     data    Domain data
- * @param {Function}  scaleFn Scale function
+ * @param {Function}  scaleFn Function to style the stroke based on the byte count
  */
 export function update(data, scaleFn) {
   let rg, enter;
