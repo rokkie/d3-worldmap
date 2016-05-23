@@ -21,7 +21,7 @@
   "homepage": "https://gitlab.com/hva-nikhef/d3-worldmap#README",
   "devDependencies": {
     "esdoc": "^0.4.7",
-    "eslint": "^2.10.1",
+    "eslint": "^2.10.2",
     "jshint": "^2.9.2",
     "webpack": "^2.1.0-beta",
     "webpack-dev-server": "^2.1.0-beta"
