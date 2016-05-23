@@ -9,7 +9,7 @@ const STATE_PAUSED  = 'paused';
 const MODE_LOOPING  = 'looping';
 const MODE_ENDING   = 'ending';
 
-let scaleFn, interval, state, mode;
+let ct, scaleFn, interval, state, mode;
 
 /**
  * Tick function for playback
@@ -18,11 +18,9 @@ let scaleFn, interval, state, mode;
  * Pauses playback if end of track is reached, unless looping is on in which
  * case it will start at the beginning of the track.
  * Dispatches event to notify value change.
- *
- * @param {d3.selection}  container Element that contains the track
  */
-function tick (container) {
-  let el  = container.select('input[type="range"]'),
+function tick () {
+  let el  = ct.select('input[type="range"]'),
       val = parseInt(el.property('value'), 10),
       max = parseInt(el.property('max'), 10),
       min, newVal;
@@ -60,11 +58,10 @@ function tick (container) {
  * Returned function updates track with actual time and updates map
  * with filtered domain data based on the actual time.
  *
- * @param   {d3.selection}  container Element that contains the controls
- * @param   {Array}         data      Domain data
- * @returns {Function}                Callback for change event
+ * @param   {Array}     data  Domain data
+ * @returns {Function}        Callback for change event
  */
-function onChange (container, data) {
+function onChange (data) {
   let datetime = ct.select('span.datetime');
 
   return function () {
@@ -93,18 +90,31 @@ function onChange (container, data) {
 function pause () {
   clearInterval(interval);
   state = STATE_PAUSED;
+
+  ct.select('.playpause')
+    .classed('icon-play3', true)
+    .classed('icon-pause2', false);
 }
 
 /**
  * Start playback
- *
- * @param {d3.selection}  container Element that contains the track
  */
-function play (container) {
+function play () {
   if (STATE_PLAYING === state) { return; }
 
-  interval = setInterval(tick.bind(undefined, container), TICK_INTERVAL);
+  interval = setInterval(tick, TICK_INTERVAL);
   state    = STATE_PLAYING;
+
+  ct.select('.playpause')
+    .classed('icon-play3', false)
+    .classed('icon-pause2', true);
+}
+
+/**
+ * Plays or pauses playback based on current state
+ */
+function playpause () {
+  ((STATE_PLAYING === state) ? pause : play)();
 }
 
 /**
@@ -112,6 +122,9 @@ function play (container) {
  */
 function loop () {
   mode = (MODE_LOOPING === mode) ? MODE_ENDING : MODE_LOOPING;
+
+  ct.select('.looptoggle')
+    .classed('active', (MODE_LOOPING === mode));
 }
 
 /**
@@ -130,6 +143,9 @@ export function init (container, data, autoplay = true) {
       maxBytes = d3.max(data, (d) => { return parseInt(d.nbytes_size, 10); }),
       controls;
 
+  // store reference to container
+  ct = container;
+
   // create scale function
   scaleFn = d3.scale.linear().domain([0, maxBytes]).range(['#00ff00', '#0000ff', '#ff0000']);
 
@@ -141,19 +157,13 @@ export function init (container, data, autoplay = true) {
   // append play button
   controls
     .append('span')
-    .classed('btn icon-play3', true)
-    .on('click', play.bind(undefined, controls));
-
-  // append pause button
-  controls
-    .append('span')
-    .classed('btn icon-pause2', true)
-    .on('click', pause);
+    .classed('btn playpause icon-play3', true)
+    .on('click', playpause);
 
   // append loop button
   controls
     .append('span')
-    .classed('btn icon-loop2', true)
+    .classed('btn looptoggle icon-loop2', true)
     .on('click', loop);
 
   // append container for date/time
@@ -168,12 +178,12 @@ export function init (container, data, autoplay = true) {
     .attr('min', minDate)
     .attr('max', maxDate)
     .attr('value', minDate)
-    .on('change', onChange(controls, data));
+    .on('change', onChange(data));
 
   // set initial state and mode
   state = STATE_PAUSED;
   mode  = MODE_ENDING;
 
   // autoplay
-  if (autoplay) { play(controls); }
+  if (autoplay) { play(); }
 }

@@ -24,13 +24,13 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-play3:before {
+.icon-play3::before {
   content: "\ea1c";
 }
-.icon-pause2:before {
+.icon-pause2::before {
   content: "\ea1d";
 }
-.icon-loop2:before {
+.icon-loop2::before {
   content: "\ea2e";
 }
 

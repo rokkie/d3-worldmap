@@ -76,11 +76,21 @@ div.controls {
   align-items    : center;
   justify-content: center;
 
-  .btn:hover {
-    cursor: pointer;
-  }
   span.btn {
     margin: 0 5px;
+
+    &::before {
+      color : lighten($controls-color, 40);
+    }
+
+    &:hover,
+    &.active {
+      cursor: pointer;
+
+      &::before {
+        color : $controls-color;
+      }
+    }
   }
   span.btn:first-child {
     margin-left: 0;

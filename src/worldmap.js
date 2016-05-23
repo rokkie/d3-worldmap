@@ -5,6 +5,9 @@ import * as utils from './utils';
 
 let g, projection, path;
 
+// @TODO: change map projection
+// @see http://mbostock.github.io/d3/talk/20111018/azimuthal.html
+
 /**
  * Function factory for extracting coordinates
  *
