@@ -1,9 +1,13 @@
 import d3 from 'd3';
 import topojson from 'topojson';
+import * as nav from './navigation';
 import * as tooltip from './tooltip';
 import * as utils from './utils';
 
-let g, projection, path;
+export const PROJECTION_MERCATOR     = 'mercator';
+export const PROJECTION_ORTHOGRAPHIC = 'orthographic';
+
+let g, projection, path, currentProjection;
 
 // @TODO: change map projection
 // @see http://mbostock.github.io/d3/talk/20111018/azimuthal.html
@@ -89,6 +93,106 @@ function tooltipDataLocation(geo) {
 }
 
 /**
+ * Redraw countries
+ *
+ * When the projection changed, the path function is
+ * different and this function should be called to
+ * redraw the map.
+ */
+function refresh() {
+  if (!g) { return; }
+  g.selectAll('path').attr('d', path);
+}
+
+/**
+ * Zoom handler
+ */
+function onZoom() {
+  if (d3.event.sourceEvent.ctrlKey) { return; }
+
+  let translate = d3.event.translate.join(','),
+      scale     = d3.event.scale;
+
+  g.attr('transform', `translate(${translate}) scale(${scale})`);
+
+  refresh();
+}
+
+/**
+ * Factory function for drag handler
+ *
+ * Creates a function
+ *
+ * @param   {d3.selection}  container
+ * @returns {Function}
+ */
+function onDrag(container) {
+  let width  = container.property('clientWidth'),
+      height = container.property('clientHeight'),
+      λ      = d3.scale.linear().domain([0, width]).range([-180, 180]),
+      φ      = d3.scale.linear().domain([0, height]) .range([90, -90]);
+
+  return () => {
+    if (PROJECTION_ORTHOGRAPHIC !== currentProjection || !d3.event.sourceEvent.ctrlKey) { return; }
+
+    projection.rotate([λ(d3.event.x), φ(d3.event.y)]);
+
+    refresh();
+  };
+}
+
+/**
+ * Create a mercator projection
+ *
+ * @returns {d3.geo.projection}
+ */
+function getMercatorProjection() {
+  return d3.geo.mercator()
+    .center([0, 25]);
+}
+
+/**
+ * Create an orthographic projection
+ *
+ * @returns {d3.geo.projection}
+ */
+function getOrthographicProjection() {
+  return d3.geo.orthographic()
+    .scale(280)
+    .center([5, 8])
+    .clipAngle(90);
+}
+
+/**
+ * Set the projection
+ *
+ * @param {String}  projectionName  Name of the projection
+ */
+export function setProjection(projectionName) {
+  if (![PROJECTION_MERCATOR, PROJECTION_ORTHOGRAPHIC].includes(projectionName)) {
+    throw RangeError(`Invalid projection ${projectionName}`);
+  }
+
+  switch (projectionName) {
+    case PROJECTION_ORTHOGRAPHIC:
+      projection = getOrthographicProjection();
+      break;
+
+    case PROJECTION_MERCATOR:
+    default:
+      projection = getMercatorProjection();
+      break;
+  }
+
+  path = d3.geo.path()
+    .projection(projection);
+
+  currentProjection = projectionName;
+
+  refresh();
+}
+
+/**
  * Update the map
  *
  * Binds data to an svg group using the PID property as key.
@@ -139,7 +243,7 @@ export function update(data, scaleFn) {
       d3.select(this.parentElement)
         .append('polygon')
         .attr('points', function (p, d) {
-          // draw arrow manually because svg markers have no mousevents,
+          // init arrow manually because svg markers have no mousevents,
           // which would prevent showing a tooltip on hoover
           let arrowSize   = 4,
               totalLength = p.getTotalLength(),
@@ -182,33 +286,22 @@ export function update(data, scaleFn) {
  * @param {d3.selection}  container Element to contain the map
  * @param {Array}         data      TopoJSON
  */
-export function draw(container, data) {
+export function init(container, data) {
   let countries = topojson.feature(data, data.objects.countries),
-      svg, zoom;
+      row, svg, zoom, drag;
 
-  // create a map projection
-  projection = d3.geo.mercator()
-    .center([0, 25]);
+  // create div for flexing
+  row = container.insert('div');
 
-  // create path
-  path = d3.geo.path()
-    .projection(projection);
+  // initialize navigation
+  nav.init(row);
 
-  // create zoom handler
-  zoom = d3.behavior.zoom()
-    .on('zoom', () => {
-      let tr    = d3.event.translate.join(','),
-          scale = d3.event.scale;
-
-      g.attr('transform', `translate(${tr}) scale(${scale})`);
-      g.selectAll('path')
-        .attr('d', path);
-    });
+  // set the map projection
+  setProjection(PROJECTION_MERCATOR);
 
   // insert svg element into the container
-  svg = container.insert('svg')
-    .attr('id', 'worldmap')
-    .call(zoom);  // attach zoom handler to svg
+  svg = row.insert('svg')
+    .attr('id', 'worldmap');
 
   // append a group to the svg element
   g = svg.append('g');
@@ -217,4 +310,26 @@ export function draw(container, data) {
   g.append('path')
     .datum(countries)
     .attr('d', path);
+
+  // create zoom handler
+  zoom = d3.behavior.zoom()
+    .on('zoom', onZoom);
+
+  // create drag handler
+  drag = d3.behavior.drag()
+    .on('drag', onDrag(container));
+
+  // attach zoom and drag handler to svg
+  svg
+    .call(zoom)
+    .call(drag);
+
+  // set/unset helper classes to switch cursor
+  svg
+    .on('mousedown', function () {
+      d3.select(this).classed('mousedown', true);
+    })
+    .on('mouseup', function () {
+      d3.select(this).classed('mousedown', false);
+    });
 }
