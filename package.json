@@ -6,6 +6,7 @@
   "main": "index.js",
   "scripts": {
     "devel": "webpack-dev-server",
+    "compass": "compass watch -c ./config.rb",
     "docs": "esdoc -c ./esdoc.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
