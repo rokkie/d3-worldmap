@@ -77,3 +77,20 @@ export function speed (bytes, duration) {
 
   return `${size} / s`;
 }
+
+/**
+ *
+ * @param   {String}  prop
+ * @param   {Array}   list
+ * @returns Map
+ */
+export function countBy(prop, list) {
+  return list.reduce((map, val) => {
+    let key = val[prop],
+        qty = (map.get(key)) || 0;
+
+    map.set(key, qty + 1);
+
+    return map;
+  }, new Map());
+}

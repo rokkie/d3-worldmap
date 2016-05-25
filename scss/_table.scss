@@ -1,0 +1,106 @@
+.datagrid {
+  table {
+    border-collapse : collapse;
+    text-align      : left;
+    width           : 100%;
+
+    td, th {
+      padding : 3px 10px;
+    }
+
+    thead th {
+      background       : -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #8C8C8C), color-stop(1, #7D7D7D));
+      background       : -moz-linear-gradient(center top, #8C8C8C 5%, #7D7D7D 100%);
+      filter           : progid:DXImageTransform.Microsoft.gradient(startColorstr='#8C8C8C', endColorstr='#7D7D7D');
+      background-color : #8C8C8C;
+      color            : #FFFFFF;
+      font-size        : 15px;
+      font-weight      : bold;
+      border-left      : 1px solid #A3A3A3;
+
+      &:first-child {
+        border : none;
+      }
+    }
+
+    tbody {
+      td {
+        color       : #7D7D7D;
+        border-left : 1px solid #DBDBDB;
+        font-size   : 12px;
+        font-weight : normal;
+      }
+
+      tr:nth-child(even) td {
+        background : #EBEBEB;
+        color      : #7D7D7D;
+      }
+
+      td:first-child {
+        border-left : none;
+      }
+
+      tr:last-child td {
+        border-bottom : none;
+      }
+    }
+
+    tfoot {
+      td {
+        padding   : 0;
+        font-size : 12px;
+
+        div {
+          border-top : 1px solid #8C8C8C;
+          background : #EBEBEB;
+          padding    : 2px;
+        }
+
+        ul {
+          margin     : 0;
+          padding    : 0;
+          list-style : none;
+          text-align : right;
+        }
+      }
+
+      li {
+        display : inline;
+
+        a {
+          text-decoration       : none;
+          display               : inline-block;
+          padding               : 2px 8px;
+          margin                : 1px;
+          color                 : #F5F5F5;
+          border                : 1px solid #8C8C8C;
+          -webkit-border-radius : 3px;
+          -moz-border-radius    : 3px;
+          border-radius         : 3px;
+          background            : -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #8C8C8C), color-stop(1, #7D7D7D));
+          background            : -moz-linear-gradient(center top, #8C8C8C 5%, #7D7D7D 100%);
+          filter                : progid:DXImageTransform.Microsoft.gradient(startColorstr='#8C8C8C', endColorstr='#7D7D7D');
+          background-color      : #8C8C8C;
+        }
+      }
+
+      ul {
+        &.active, a:hover {
+          text-decoration  : none;
+          border-color     : #7D7D7D;
+          color            : #F5F5F5;
+          background       : none;
+          background-color : #8C8C8C;
+        }
+      }
+    }
+  }
+
+  font                  : normal 12px/150% Arial, Helvetica, sans-serif;
+  background            : #fff;
+  overflow              : hidden;
+  border                : 1px solid #8C8C8C;
+  -webkit-border-radius : 3px;
+  -moz-border-radius    : 3px;
+  border-radius         : 3px;
+}

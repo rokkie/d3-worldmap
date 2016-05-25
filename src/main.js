@@ -1,5 +1,6 @@
 import * as worldmap from './worldmap';
 import * as controls from './controls';
+import * as topdst from './topdst';
 
 const URL_MAPDATA   = '/data/world-map.json';
 const URL_TRANSFERS = 'http://localhost:9090/transfers';
@@ -34,6 +35,7 @@ export default function main () {
     // init the map and initialize the controls
     worldmap.init(wrap, mapdata);
     controls.init(wrap, traffic, AUTOPLAY);
+    topdst.init(wrap, traffic);
 
     // remove the loading animation
     d3.select('#loading-anim').remove();
