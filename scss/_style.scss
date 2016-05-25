@@ -10,6 +10,12 @@
   height        : $wrap-height;
   display       : flex;
   flex-direction: column;
+
+  > div:first-child {
+    display       : flex;
+    flex-direction: row;
+    flex          : 1;
+  }
 }
 
 #worldmap {
@@ -18,6 +24,10 @@
   fill         : $map-land-color;
   stroke       : $map-border-color;
   stroke-width : 0.25px;
+
+  &.mousedown {
+    cursor: move;
+  }
 
   g.route-group {
     path.route {
@@ -30,6 +40,17 @@
       stroke: none;
       fill  : $map-marker-color;
     }
+  }
+}
+
+nav {
+  display       : flex;
+  flex-direction: column;
+
+  span.btn {
+    font-size: 30px;
+    margin   : 10px 5px;
+    cursor   : pointer;
   }
 }
 

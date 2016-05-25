@@ -31,8 +31,8 @@ export default function main () {
         traffic = data[1],
         wrap    = d3.select('#wrap');
 
-    // draw the map and initialize the controls
-    worldmap.draw(wrap, mapdata);
+    // init the map and initialize the controls
+    worldmap.init(wrap, mapdata);
     controls.init(wrap, traffic, AUTOPLAY);
 
     // remove the loading animation
