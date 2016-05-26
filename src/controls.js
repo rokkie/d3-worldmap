@@ -8,6 +8,9 @@ const STATE_PLAYING = 'playing';
 const STATE_PAUSED  = 'paused';
 const MODE_LOOPING  = 'looping';
 const MODE_ENDING   = 'ending';
+const SCALE_MIN     = '#00ff00';
+const SCALE_MID     = '#0000ff';
+const SCALE_MAX     = '#ff0000';
 
 let ct, scaleFn, interval, state, mode;
 
@@ -141,13 +144,13 @@ export function init (container, data, autoplay = true) {
   let minDate  = d3.min(data, (d) => { return Date.parse(d.start_timestamp); }),
       maxDate  = d3.max(data, (d) => { return Date.parse(d.end_timestamp); }),
       maxBytes = d3.max(data, (d) => { return parseInt(d.nbytes_size, 10); }),
-      controls;
+      controls, legend;
 
   // store reference to container
   ct = container;
 
   // create scale function
-  scaleFn = d3.scale.linear().domain([0, maxBytes]).range(['#00ff00', '#0000ff', '#ff0000']);
+  scaleFn = d3.scale.linear().domain([0, maxBytes]).range([SCALE_MIN, SCALE_MID, SCALE_MAX]);
 
   // append container
   controls = container
@@ -179,6 +182,23 @@ export function init (container, data, autoplay = true) {
     .attr('max', maxDate)
     .attr('value', minDate)
     .on('change', onChange(data));
+
+  // legend
+  legend = container
+    .append('div')
+    .classed('legend', true);
+
+  legend
+    .append('div')
+    .text(utils.humanFileSize(maxBytes));
+
+  legend
+    .append('div')
+    .classed('scale', true);
+
+  legend
+    .append('div')
+    .text('0 B');
 
   // set initial state and mode
   state = STATE_PAUSED;

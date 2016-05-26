@@ -133,3 +133,19 @@ div.controls {
     font-size: 12px;
   }
 }
+
+div.legend {
+  width     : 100%;
+  font-size : 12px;
+
+  div {
+    float : right;
+  }
+
+  .scale {
+    width  : 300px;
+    height : 5px;
+    margin : 4px;
+    @include background-image(linear-gradient(to right, $legend-scale-min, $legend-scale-mid, $legend-scale-max));
+  }
+}
