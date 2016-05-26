@@ -129,7 +129,7 @@ function refresh() {
 
   // redraw the arrows
   g.selectAll('g.route-group polygon')
-    .attr('points', function (d) {
+    .attr('points', function () {
       return arrowPoints(this.previousSibling);
     });
 
@@ -214,6 +214,7 @@ export function setProjection(projectionName) {
       break;
 
     case PROJECTION_MERCATOR:
+      /* falls through */
     default:
       projection = getMercatorProjection();
       break;
@@ -275,7 +276,7 @@ export function update(data, scaleFn) {
 
   // draw polygon (triangle) on the 'to' location
   enter.append('polygon')
-    .attr('points', function (d) {
+    .attr('points', function () {
       return arrowPoints(this.previousSibling);
     })
     .on('mouseleave', tooltip.hide)

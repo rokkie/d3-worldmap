@@ -1,9 +1,10 @@
 import d3 from 'd3';
 
 /**
+ * Create a table
  *
- * @param {d3.selection}  container
- * @param {Array}         data
+ * @param {d3.selection}  container Where to put the table in
+ * @param {Array}         data      Data to create the table from
  */
 export default function (container, data) {
   let tbl   = container.append('table'),

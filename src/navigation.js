@@ -3,7 +3,7 @@ import {PROJECTION_MERCATOR, PROJECTION_ORTHOGRAPHIC, setProjection} from './wor
 /**
  * Initialize navigation
  *
- * @param {d3.selection}  container
+ * @param {d3.selection}  container Where to put the navigation
  */
 export function init(container) {
   let nav = container.insert('nav');

@@ -3,9 +3,10 @@ import table from './table';
 const TXT_HEADER = 'Top Destinations';
 
 /**
+ * Count occurrences of destination
  *
- * @param   {Array} data
- * @returns {*}
+ * @param   {Array}   data  Data to count destinations of
+ * @returns {Object}        Data augmented with 'count'
  */
 function countDestinations(data) {
   return data.reduce((acc, cur) => {
@@ -29,9 +30,10 @@ function countDestinations(data) {
 }
 
 /**
+ * Initialize table with top destination
  *
- * @param {d3.selection}  container
- * @param {Array}         data
+ * @param {d3.selection}  container Where to put the table in
+ * @param {Array}         data      Raw data
  */
 export function init(container, data) {
   let div = container.append('div').classed('datagrid', true),
@@ -43,5 +45,4 @@ export function init(container, data) {
 
   // draw table
   table(div, dst);
-
 }

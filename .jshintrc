@@ -20,7 +20,7 @@
   "noarg"    : true,
   "quotmark" : "single",
   "scripturl": false,
-  "shadow"   : "inner",
+  "shadow"   : false,
   "supernew" : false,
   "undef"    : true,
   "unused"   : "vars",
@@ -30,7 +30,6 @@
   "globals"  : {
     "Promise" : true,
     "d3"      : true,
-    "topojson": true,
-    "Utils"   : true
+    "topojson": true
   }
 }
