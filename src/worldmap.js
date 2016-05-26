@@ -9,8 +9,28 @@ export const PROJECTION_ORTHOGRAPHIC = 'orthographic';
 
 let g, projection, path, currentProjection;
 
-// @TODO: change map projection
-// @see http://mbostock.github.io/d3/talk/20111018/azimuthal.html
+/**
+ * Calculate point to draw arrow
+ *
+ * Given an SVG path, calculates the points attribute
+ * value necessary to draw an arrow on the end of the
+ * path in the direction where the path is pointing.
+ *
+ * @param   {SVGPathElement}  p Path to draw an arrow on
+ * @returns {String}            Value suitable for 'points' attribute
+ */
+function arrowPoints(p) {
+  let arrowSize   = 4,
+      totalLength = p.getTotalLength(),
+      startPoint  = p.getPointAtLength(totalLength - arrowSize),
+      endPoint    = p.getPointAtLength(totalLength),
+      angle       = utils.angleBetweenPoints(startPoint, endPoint),
+      p1          = utils.pointOnCircle(endPoint, angle, 0, arrowSize),
+      p2          = utils.pointOnCircle(endPoint, angle, 135, arrowSize),
+      p3          = utils.pointOnCircle(endPoint, angle, -135, arrowSize);
+
+  return `${p1} ${p2} ${p3}`;
+}
 
 /**
  * Function factory for extracting coordinates
@@ -98,10 +118,25 @@ function tooltipDataLocation(geo) {
  * When the projection changed, the path function is
  * different and this function should be called to
  * redraw the map.
+ * Also the arrows and dots marking the source and
+ * destinations should be updated.
  */
 function refresh() {
   if (!g) { return; }
+
+  // redraw map using updated path function
   g.selectAll('path').attr('d', path);
+
+  // redraw the arrows
+  g.selectAll('g.route-group polygon')
+    .attr('points', function (d) {
+      return arrowPoints(this.previousSibling);
+    });
+
+  // redraw the dots
+  g.selectAll('g.route-group circle')
+    .attr('cx', geoFn('src', 'lon'))
+    .attr('cy', geoFn('src', 'lat'));
 }
 
 /**
@@ -236,31 +271,17 @@ export function update(data, scaleFn) {
     .on('mouseenter', (d) => {
       let data = tooltipDataTransfer(d);
       tooltip.show(data);
+    });
+
+  // draw polygon (triangle) on the 'to' location
+  enter.append('polygon')
+    .attr('points', function (d) {
+      return arrowPoints(this.previousSibling);
     })
-
-    // each because we need a reference to the path
-    .each(function (d) {
-      d3.select(this.parentElement)
-        .append('polygon')
-        .attr('points', function (p, d) {
-          // init arrow manually because svg markers have no mousevents,
-          // which would prevent showing a tooltip on hoover
-          let arrowSize   = 4,
-              totalLength = p.getTotalLength(),
-              startPoint  = p.getPointAtLength(totalLength - arrowSize),
-              endPoint    = p.getPointAtLength(totalLength),
-              angle       = utils.angleBetweenPoints(startPoint, endPoint),
-              p1          = utils.pointOnCircle(endPoint, angle, 0, arrowSize),
-              p2          = utils.pointOnCircle(endPoint, angle, 135, arrowSize),
-              p3          = utils.pointOnCircle(endPoint, angle, -135, arrowSize);
-
-          return `${p1} ${p2} ${p3}`;
-        }.bind(undefined, this))
-        .on('mouseleave', tooltip.hide)
-        .on('mouseenter', () => {
-          let data = tooltipDataLocation(d.geoDst);
-          tooltip.show(data);
-        });
+    .on('mouseleave', tooltip.hide)
+    .on('mouseenter', (d) => {
+      let data = tooltipDataLocation(d.geoDst);
+      tooltip.show(data);
     });
 
   // draw a dot on the 'from' location
