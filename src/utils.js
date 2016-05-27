@@ -79,18 +79,11 @@ export function speed (bytes, duration) {
 }
 
 /**
+ * Test if value is an object
  *
- * @param   {String}  prop
- * @param   {Array}   list
- * @returns Map
+ * @param   {*}       val Value to test
+ * @returns {Boolean}
  */
-export function countBy(prop, list) {
-  return list.reduce((map, val) => {
-    let key = val[prop],
-        qty = (map.get(key)) || 0;
-
-    map.set(key, qty + 1);
-
-    return map;
-  }, new Map());
+export function isObject(val) {
+  return val instanceof Object && val.constructor === Object;
 }
