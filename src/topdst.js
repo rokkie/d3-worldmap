@@ -30,12 +30,12 @@ function countDestinations(data) {
 }
 
 /**
- * Initialize table with top destination
+ * Create table with top destination
  *
  * @param {d3.selection}  container Where to put the table in
  * @param {Array}         data      Raw data
  */
-export function init(container, data) {
+export default function (container, data) {
   let div = container.append('div').classed('datagrid', true),
       dst = countDestinations(data)
             .sort((a, b) => { return a.count < b.count; })
