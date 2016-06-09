@@ -1,3 +1,5 @@
+var webpack = require('webpack');
+
 module.exports = {
   entry: {
     app: ['./index.js']
@@ -14,6 +16,10 @@ module.exports = {
     loaders    : [],
     postLoaders: []
   },
+
+  plugins: [
+    new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en-gb/)
+  ],
 
   devtool: '#source-map',
 
