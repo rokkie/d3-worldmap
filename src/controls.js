@@ -212,7 +212,7 @@ export default class Controls {
   onDateSelect () {
     this.controls.node().dispatchEvent(new CustomEvent('datechange', {
       bubbles   : true,
-      cancelable: true,
+      cancelable: false,
       detail    : {
         dateIn : this.dateInPicker.getDate(),
         dateOut: this.dateOutPicker.getDate()
