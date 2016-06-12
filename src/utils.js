@@ -40,11 +40,20 @@ export let dateFormat = time.format.utc('%a, %b %d, %Y, %H:%M:%S UTC');
  * @returns {String}        Elapsed time in human readable form
  */
 export function elapsed (start, end) {
-  let elapsed = end - start,
-      millis  = (elapsed % 1000),
-      seconds = Math.floor(elapsed / 1000),
-      minutes = Math.floor(elapsed / 1000 / 60),
-      hours   = Math.floor(elapsed / 1000 / 60 / 60);
+  let remainder      = end - start,
+      millisInSecond = 1000,
+      millisInMinute = millisInSecond * 60,
+      millisInHour   = millisInMinute * 60,
+      hours, minutes, seconds, millis;
+
+  hours     = Math.floor(remainder / millisInHour);
+  remainder = remainder % millisInHour;
+
+  minutes   = Math.floor(remainder / millisInMinute);
+  remainder = remainder % millisInMinute;
+
+  seconds   = Math.floor(remainder / millisInSecond);
+  millis    = remainder % millisInSecond;
 
   return `Operation took: ${millis} milliseconds, ${seconds} seconds, ${minutes} minutes, ${hours} hours`;
 }
