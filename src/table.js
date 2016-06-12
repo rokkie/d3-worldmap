@@ -9,7 +9,7 @@ export default class Table {
    */
   constructor (container, data = null) {
     this._tbl   = container.append('table');
-    this._thead = this.tbl.insert('thead');
+    this._thead = this.tbl.insert('thead').insert('tr');
     this._tbody = this.tbl.insert('tbody');
     this._data  = undefined;
 
@@ -58,7 +58,7 @@ export default class Table {
     let th, tr, td;
 
     // header
-    th = this.thead.insert('tr').selectAll('th')
+    th = this.thead.selectAll('th')
       .data(d3.keys(data[0]));
     th.enter().append('th')
       .text((d) => { return d; });
