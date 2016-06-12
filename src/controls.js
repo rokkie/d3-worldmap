@@ -20,9 +20,9 @@ export default class Controls {
   /**
    * Constructor
    *
-   * @param {d3.selection}  container
-   * @param {Worldmap}      map
-   * @param {Array}         data
+   * @param {d3.selection}  container Where to put the controls in
+   * @param {Worldmap}      map       The map to control
+   * @param {Array}         [data]    Domain data
    */
   constructor (container, map, data = null) {
     // private
@@ -178,7 +178,6 @@ export default class Controls {
         scaleFn  = this.scaleFn,
         worldmap = this.map;
 
-
     return function () {
       let timestamp = parseInt(d3.event.target.value, 10),
           updata;
@@ -199,7 +198,17 @@ export default class Controls {
     };
   }
 
-
+  /**
+   * Relays change-event of date picker
+   *
+   * Makes it so we can listen explicitly for 'datechange'.
+   * Also, if we just listen for 'change' on e.g. the controls,
+   * the event target end up being 'document' with no event details
+   * which makes it near useless for our purpose.
+   *
+   * @listens {Event}       change
+   * @emits   {CustomEvent} datechange
+   */
   onDateSelect () {
     this.controls.node().dispatchEvent(new CustomEvent('datechange', {
       bubbles   : true,

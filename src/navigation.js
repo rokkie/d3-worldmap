@@ -1,12 +1,11 @@
 import {PROJECTION_MERCATOR, PROJECTION_ORTHOGRAPHIC} from './worldmap';
 
 export default class Navigation {
-
   /**
    * Constructor
    *
-   * @param {d3.selection} container
-   * @param {Worldmap}     map
+   * @param {d3.selection} container  Where to put the navigation in
+   * @param {Worldmap}     map        The map
    */
   constructor (container, map) {
     let nav = container.insert('nav');
