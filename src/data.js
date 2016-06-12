@@ -1,45 +1,50 @@
 import d3 from 'd3';
-import {isObject} from './utils';
+import {isObject, toQueryString} from './utils';
 
 const URL_MAPDATA        = '/data/world-map.json';
 const URL_TRANSFERS      = 'http://localhost:9090/transfers';
 const ERR_MALFORMED_DATA = 'Data is malformed. Expected array, got';
 
-/**
- * 
- * @returns {Promise}
- */
-export function fetchMapData () {
-  return new Promise((resolve, reject) => {
-    d3.json(URL_MAPDATA, (err, data) => {
-      if (err) { reject(err); }
-      resolve(data);
+export default class Data {
+  /**
+   *
+   * @returns {Promise}
+   */
+  static fetchMap () {
+    return new Promise((resolve, reject) => {
+      d3.json(URL_MAPDATA, (err, data) => {
+        if (err) { reject(err); }
+        resolve(data);
+      });
     });
-  });
-}
+  }
 
-/**
- *
- * @returns {Promise}
- */
-export function fetchTrafficData () {
-  return new Promise((resolve, reject) => {
-    d3.json(URL_TRANSFERS, (err, data) => {
-      if (err) { reject(err); }
+  /**
+   *
+   * @param   {Object}  [filters]
+   * @returns {Promise}
+   */
+  static fetchTraffic (filters = null) {
+    let qs = isObject(filters) ? toQueryString(filters) : '';
 
-      if (isObject(data) &&
-        -1 !== Object.keys(data).indexOf('displayName') &&
-        -1 !== Object.keys(data).indexOf('message')) {
-        reject(data.message);
-      }
+    return new Promise((resolve, reject) => {
+      d3.json(URL_TRANSFERS + qs, (err, data) => {
+        if (err) { reject(err); }
 
-      if (!Array.isArray(data)) {
-        let actual = typeof data,
-            e      = new TypeError(`${ERR_MALFORMED_DATA} ${actual}`);
-        reject(e);
-      }
+        if (isObject(data) &&
+          -1 !== Object.keys(data).indexOf('displayName') &&
+          -1 !== Object.keys(data).indexOf('message')) {
+          reject(data.message);
+        }
 
-      resolve(data);
+        if (!Array.isArray(data)) {
+          let actual = typeof data,
+              e      = new TypeError(`${ERR_MALFORMED_DATA} ${actual}`);
+          reject(e);
+        }
+
+        resolve(data);
+      });
     });
-  });
+  }
 }

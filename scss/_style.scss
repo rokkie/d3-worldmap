@@ -134,6 +134,19 @@ div.controls {
   }
 }
 
+div.filters {
+  width          : 100%;
+  margin         : 3px;
+  display        : flex;
+  align-items    : center;
+  justify-content: flex-start;
+
+  .date {
+    width: 75px;
+    margin: 0 5px;
+  }
+}
+
 div.legend {
   width     : 100%;
   font-size : 12px;

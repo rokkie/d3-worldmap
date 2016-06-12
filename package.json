@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "d3": "^3.5.17",
+    "pikaday": "^1.4.0",
     "topojson": "^1.6.26"
   }
 }
