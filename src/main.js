@@ -1,30 +1,39 @@
+import d3 from 'd3';
 import Worldmap from './worldmap';
 import Controls from './controls';
-import topdst from './topdst';
-import * as data from './data';
+import TopDst from './topdst';
+import Data from './data';
 
 /**
  * Application entry
  */
 export default function main () {
   // fetch data
-  let pWorldMap = data.fetchMapData(),
-      pTraffic  = data.fetchTrafficData();
+  let pWorldMap = Data.fetchMap(),
+      pTraffic  = Data.fetchTraffic();
 
   // when they are both loaded
   Promise.all([pWorldMap, pTraffic]).then((data) => {
-    let mapdata = data[0],
-        traffic = data[1],
-        wrap    = d3.select('#wrap'),
-        map, ctrl;
+    let wrap = d3.select('#wrap'),
+        map, ctrl, top;
 
     // create the map and controls
-    map  = new Worldmap(wrap, mapdata);
-    ctrl = new Controls(wrap, map, traffic);
+    map  = new Worldmap(wrap, data[0]);
+    ctrl = new Controls(wrap, map, data[1]);
+    top  = new TopDst(wrap, data[1]);
 
-    // create table with top destinations
-    topdst(wrap, traffic);
+    // fetch traffic again on date change
+    ctrl.controls.on('datechange', () => {
+      let detail = d3.event.detail;
 
+      Data.fetchTraffic({
+        dateIn : detail.dateIn.getTime(),
+        dateOut: detail.dateOut.getTime()
+      }).then((data) => {
+        ctrl.data = data;
+        top.data  = data;
+      });
+    });
 
   }, (err) => {
     // error in console
