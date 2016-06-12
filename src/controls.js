@@ -1,5 +1,6 @@
 import d3 from 'd3';
-import * as worldmap from './worldmap';
+import Pikaday from 'pikaday';
+import Worldmap from './worldmap';
 import * as utils from './utils';
 
 const TICK_INTERVAL = 20;
@@ -11,199 +12,420 @@ const MODE_ENDING   = 'ending';
 const SCALE_MIN     = '#00ff00';
 const SCALE_MID     = '#0000ff';
 const SCALE_MAX     = '#ff0000';
+const DATE_FORMAT   = 'DD-MM-YYYY';
+const DATE_PATTERN  = '\d{2}-\d{2}-\d{4}';
 
-let ct, scaleFn, interval, state, mode;
+export default class Controls {
 
-/**
- * Tick function for playback
- *
- * Adds TICK_STEP milliseconds to actual time and updates track with new value.
- * Pauses playback if end of track is reached, unless looping is on in which
- * case it will start at the beginning of the track.
- * Dispatches event to notify value change.
- */
-function tick () {
-  let el  = ct.select('input[type="range"]'),
-      val = parseInt(el.property('value'), 10),
-      max = parseInt(el.property('max'), 10),
-      min, newVal;
+  /**
+   * Constructor
+   *
+   * @param {d3.selection}  container Where to put the controls in
+   * @param {Worldmap}      map       The map to control
+   * @param {Array}         [data]    Domain data
+   */
+  constructor (container, map, data = null) {
+    // private
+    this._ct            = container;
+    this._map           = undefined;
+    this._data          = undefined;
+    this._scaleFn       = undefined;
+    this._controls      = undefined;
+    this._filters       = undefined;
+    this._legend        = undefined;
+    this._dateInPicker  = undefined;
+    this._dateOutPicker = undefined;
+    this._interval      = undefined;
+    this._state         = STATE_PAUSED;
+    this._mode          = MODE_ENDING;
 
-  // if the maximum is lower than the current value
-  if (max <= val) {
-    // and we're in looping mode
-    if (MODE_LOOPING === mode) {
-      // set the value to the minimum
-      min = parseInt(el.property('min'), 10);
-      el.property('value', min);
-    } else {
-      // otherwise pause playback
-      pause();
+    // set map
+    this.map = map;
+
+    // append container
+    this._controls = this.container
+      .append('div')
+      .classed('controls', true);
+
+    // append play button
+    this.controls
+      .append('span')
+      .classed('btn playpause icon-play3', true)
+      .on('click', this.playpause.bind(this));
+
+    // append loop button
+    this.controls
+      .append('span')
+      .classed('btn looptoggle icon-loop2', true)
+      .on('click', this.loop.bind(this));
+
+    // append container for date/time
+    this.controls
+      .append('span')
+      .classed('datetime', true);
+
+    // append track
+    this.controls
+      .insert('input', ':last-child')
+      .attr('type', 'range');
+
+    this._filters = this.container
+      .append('div')
+      .classed('filters', true);
+
+    this.filters
+      .append('label')
+      .attr('for', 'date-in')
+      .text('Start Date');
+
+    this._dateInField = this.filters
+      .append('input')
+      .classed('date', true)
+      .attr('id', 'date-in')
+      .attr('name', 'date-out')
+      .attr('type', 'text')
+      .attr('pattern', DATE_PATTERN)
+      .node();
+
+    this.filters
+      .append('label')
+      .attr('for', 'date-end')
+      .text('End Date');
+
+    this._dateOutField = this.filters
+      .append('input')
+      .classed('date', true)
+      .attr('id', 'date-out')
+      .attr('name', 'date-out')
+      .attr('type', 'text')
+      .attr('pattern', DATE_PATTERN)
+      .node();
+
+    // legend
+    this._legend = this.container
+      .append('div')
+      .classed('legend', true);
+
+    this.legend
+      .append('div');
+
+    this.legend
+      .append('div')
+      .classed('scale', true);
+
+    this.legend
+      .append('div')
+      .text('0 B');
+
+    if (null !== data) {
+      this.data = data;
     }
-  } else {
-    // otherwise ass TICK_STEP to the current value
-    newVal = val + TICK_STEP;
-
-    // set the new value to be the lowest of the newly calculated or the maximum
-    el.property('value', d3.min([newVal, max]));
   }
 
-  // dispatch an event to notify the change of value
-  el.node().dispatchEvent(new Event('change', {
-    bubbles   : true,
-    cancelable: false
-  }));
-}
 
-/**
- * Function factory for change callback
- *
- * Creates a function to be used as a callback for the change event.
- * Returned function updates track with actual time and updates map
- * with filtered domain data based on the actual time.
- *
- * @param   {Array}     data  Domain data
- * @returns {Function}        Callback for change event
- */
-function onChange (data) {
-  let datetime = ct.select('span.datetime');
+  /**
+   * Tick function for playback
+   *
+   * Adds TICK_STEP milliseconds to actual time and updates track with new value.
+   * Pauses playback if end of track is reached, unless looping is on in which
+   * case it will start at the beginning of the track.
+   * Dispatches event to notify value change.
+   */
+  tick () {
+    let el  = this.container.select('input[type="range"]'),
+        val = parseInt(el.property('value'), 10),
+        max = parseInt(el.property('max'), 10),
+        min, newVal;
 
-  return function () {
-    let timestamp = parseInt(d3.event.target.value, 10),
-        updata;
+    // if the maximum is lower than the current value
+    if (max <= val) {
+      // and we're in looping mode
+      if (MODE_LOOPING === this.mode) {
+        // set the value to the minimum
+        min = parseInt(el.property('min'), 10);
+        el.property('value', min);
+      } else {
+        // otherwise pause playback
+        this.pause();
+      }
+    } else {
+      // otherwise ass TICK_STEP to the current value
+      newVal = val + TICK_STEP;
 
-    // update view with new date/time
-    datetime.text(utils.dateFormat(new Date(timestamp)));
+      // set the new value to be the lowest of the newly calculated or the maximum
+      el.property('value', d3.min([newVal, max]));
+    }
 
-    // filter the dataset based on the datetime
-    updata = data.filter((d) => {
-      return (
-        timestamp >= Date.parse(d.start_timestamp) &&
-        timestamp <= Date.parse(d.end_timestamp)
-      );
-    });
+    // dispatch an event to notify the change of value
+    el.node().dispatchEvent(new Event('change', {
+      bubbles   : true,
+      cancelable: false
+    }));
+  }
 
-    // update map with new data
-    worldmap.update(updata, scaleFn);
-  };
-}
+  /**
+   * Function factory for change callback
+   *
+   * Creates a function to be used as a callback for the change event.
+   * Returned function updates track with actual time and updates map
+   * with filtered domain data based on the actual time.
+   *
+   * @param   {Array}     data  Domain data
+   * @returns {Function}        Callback for change event
+   */
+  onChange (data) {
+    let datetime = this.container.select('span.datetime'),
+        scaleFn  = this.scaleFn,
+        worldmap = this.map;
 
-/**
- * Pause playback
- */
-function pause () {
-  clearInterval(interval);
-  state = STATE_PAUSED;
+    return function () {
+      let timestamp = parseInt(d3.event.target.value, 10),
+          updata;
 
-  ct.select('.playpause')
-    .classed('icon-play3', true)
-    .classed('icon-pause2', false);
-}
+      // update view with new date/time
+      datetime.text(utils.dateFormat(new Date(timestamp)));
 
-/**
- * Start playback
- */
-function play () {
-  if (STATE_PLAYING === state) { return; }
+      // filter the dataset based on the datetime
+      updata = data.filter((d) => {
+        return (
+          timestamp >= Date.parse(d.start_timestamp) &&
+          timestamp <= Date.parse(d.end_timestamp)
+        );
+      });
 
-  interval = setInterval(tick, TICK_INTERVAL);
-  state    = STATE_PLAYING;
+      // update map with new data
+      worldmap.update(updata, scaleFn);
+    };
+  }
 
-  ct.select('.playpause')
-    .classed('icon-play3', false)
-    .classed('icon-pause2', true);
-}
+  /**
+   * Relays change-event of date picker
+   *
+   * Makes it so we can listen explicitly for 'datechange'.
+   * Also, if we just listen for 'change' on e.g. the controls,
+   * the event target end up being 'document' with no event details
+   * which makes it near useless for our purpose.
+   *
+   * @listens {Event}       change
+   * @emits   {CustomEvent} datechange
+   */
+  onDateSelect () {
+    this.controls.node().dispatchEvent(new CustomEvent('datechange', {
+      bubbles   : true,
+      cancelable: false,
+      detail    : {
+        dateIn : this.dateInPicker.getDate(),
+        dateOut: this.dateOutPicker.getDate()
+      }
+    }));
+  }
 
-/**
- * Plays or pauses playback based on current state
- */
-function playpause () {
-  ((STATE_PLAYING === state) ? pause : play)();
-}
+  /**
+   * Pause playback
+   */
+  pause () {
+    clearInterval(this.interval);
+    this._state = STATE_PAUSED;
 
-/**
- * Toggle looping of playback
- */
-function loop () {
-  mode = (MODE_LOOPING === mode) ? MODE_ENDING : MODE_LOOPING;
+    this.container.select('.playpause')
+      .classed('icon-play3', true)
+      .classed('icon-pause2', false);
+  }
 
-  ct.select('.looptoggle')
-    .classed('active', (MODE_LOOPING === mode));
-}
+  /**
+   * Start playback
+   */
+  play () {
+    if (STATE_PLAYING === this.state) { return; }
 
-/**
- * Initialize the controls
- *
- * Draws player controls in the specified container.
- * Should be called before anything else.
- *
- * @param {d3.selection}  container Element to put the controls in
- * @param {Array}         data      Domain data
- * @param {Boolean}       autoplay  [optional] Default to true
- */
-export function init (container, data, autoplay = true) {
-  let minDate  = d3.min(data, (d) => { return Date.parse(d.start_timestamp); }),
-      maxDate  = d3.max(data, (d) => { return Date.parse(d.end_timestamp); }),
-      maxBytes = d3.max(data, (d) => { return parseInt(d.nbytes_size, 10); }),
-      controls, legend;
+    this._interval = setInterval(this.tick.bind(this), TICK_INTERVAL);
+    this._state    = STATE_PLAYING;
 
-  // store reference to container
-  ct = container;
+    this.container.select('.playpause')
+      .classed('icon-play3', false)
+      .classed('icon-pause2', true);
+  }
 
-  // create scale function
-  scaleFn = d3.scale.linear().domain([0, maxBytes]).range([SCALE_MIN, SCALE_MID, SCALE_MAX]);
+  /**
+   * Plays or pauses playback based on current state
+   */
+  playpause () {
+    ((STATE_PLAYING === this._state) ? this.pause.bind(this) : this.play.bind(this))();
+  }
 
-  // append container
-  controls = container
-    .append('div')
-    .classed('controls', true);
+  /**
+   * Toggle looping of playback
+   */
+  loop () {
+    this._mode = (MODE_LOOPING === this.mode) ? MODE_ENDING : MODE_LOOPING;
 
-  // append play button
-  controls
-    .append('span')
-    .classed('btn playpause icon-play3', true)
-    .on('click', playpause);
+    this.container.select('.looptoggle')
+      .classed('active', (MODE_LOOPING === this.mode));
+  }
 
-  // append loop button
-  controls
-    .append('span')
-    .classed('btn looptoggle icon-loop2', true)
-    .on('click', loop);
+  /**
+   * Get the container
+   *
+   * @returns {d3.selection}
+   */
+  get container () {
+    return this._ct;
+  }
 
-  // append container for date/time
-  controls
-    .append('span')
-    .classed('datetime', true);
+  /**
+   * Get the map
+   *
+   * @returns {Worldmap}
+   */
+  get map () {
+    return this._map;
+  }
 
-  // append track
-  controls
-    .insert('input', ':last-child')
-    .attr('type', 'range')
-    .attr('min', minDate)
-    .attr('max', maxDate)
-    .attr('value', minDate)
-    .on('change', onChange(data));
+  /**
+   * Set the map
+   *
+   * @param {Worldmap}  map
+   */
+  set map (map) {
+    if (!map instanceof Worldmap) {
+      throw new TypeError('Incorrect parameter type');
+    }
 
-  // legend
-  legend = container
-    .append('div')
-    .classed('legend', true);
+    this._map = map;
+  }
 
-  legend
-    .append('div')
-    .text(utils.humanFileSize(maxBytes));
+  /**
+   * Get data
+   *
+   * @returns {Array}
+   */
+  get data () {
+    return this._data;
+  }
 
-  legend
-    .append('div')
-    .classed('scale', true);
+  /**
+   * Set data
+   *
+   * @param {Array} data
+   */
+  set data (data) {
+    let minDate  = d3.min(data, (d) => { return Date.parse(d.start_timestamp); }),
+        maxDate  = d3.max(data, (d) => { return Date.parse(d.end_timestamp); }),
+        maxBytes = d3.max(data, (d) => { return parseInt(d.nbytes_size, 10); });
 
-  legend
-    .append('div')
-    .text('0 B');
+    this._scaleFn = d3.scale.linear().domain([0, maxBytes]).range([SCALE_MIN, SCALE_MID, SCALE_MAX]);
 
-  // set initial state and mode
-  state = STATE_PAUSED;
-  mode  = MODE_ENDING;
+    this.controls.select('[type="range"]')
+      .attr('min', minDate)
+      .attr('max', maxDate)
+      .attr('value', minDate)
+      .on('change', this.onChange(data));
 
-  // autoplay
-  if (autoplay) { play(); }
+    if (!this.dateInPicker) {
+      this._dateInPicker = new Pikaday({
+        field         : this.dateInField,
+        defaultDate   : new Date(minDate),
+        setDefaultDate: true,
+        format        : DATE_FORMAT,
+        onSelect      : this.onDateSelect.bind(this)
+      });
+    }
+
+    if (!this.dateOutPicker) {
+      this._dateOutPicker = new Pikaday({
+        field         : this.dateOutField,
+        defaultDate   : new Date(maxDate),
+        setDefaultDate: true,
+        format        : DATE_FORMAT,
+        onSelect      : this.onDateSelect.bind(this)
+      });
+    }
+
+    this.legend.select('div')
+      .text(utils.humanFileSize(maxBytes));
+  }
+
+  /**
+   * Get scale function
+   *
+   * @returns {Function}
+   */
+  get scaleFn () {
+    return this._scaleFn;
+  }
+
+  /**
+   * Get the controls
+   *
+   * @returns {d3.selection}
+   */
+  get controls () {
+    return this._controls;
+  }
+
+  /**
+   * Get the filters
+   *
+   * @returns {d3.selection}
+   */
+  get filters () {
+    return this._filters;
+  }
+
+  get legend () {
+    return this._legend;
+  }
+
+  /**
+   * Get input field for date-in
+   * @returns {HTMLInputElement}
+   */
+  get dateInField () {
+    return this._dateInField;
+  }
+
+  /**
+   * Get date picker of date-in field
+   *
+   * @returns {Pikaday}
+   */
+  get dateInPicker () {
+    return this._dateInPicker;
+  }
+
+  /**
+   * Get input field for date-out
+   *
+   * @returns {HTMLInputElement}
+   */
+  get dateOutField () {
+    return this._dateOutField;
+  }
+
+  /**
+   * Get date picker of date-out field
+   *
+   * @returns {Pikaday}
+   */
+  get dateOutPicker () {
+    return this._dateOutPicker;
+  }
+
+  /**
+   * Get playback mode
+   *
+   * @returns {String}
+   */
+  get mode () {
+    return this._mode;
+  }
+
+  /**
+   * Get tick interval
+   *
+   * @returns {Number}
+   */
+  get interval () {
+    return this._interval;
+  }
 }

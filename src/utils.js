@@ -87,3 +87,18 @@ export function speed (bytes, duration) {
 export function isObject(val) {
   return val instanceof Object && val.constructor === Object;
 }
+
+/**
+ * Converts an object with key/values to a query string
+ *
+ * @param   {Object}  obj Object to create query string from
+ * @returns {String}
+ */
+export function toQueryString(obj) {
+  let q = Object.keys(obj).reduce((acc, cur) => {
+    acc.push(encodeURIComponent(cur) + '=' + encodeURIComponent(obj[cur]));
+    return acc;
+  }, []).join('&');
+
+  return (0 < q.length) ? '?' + q : '';
+}

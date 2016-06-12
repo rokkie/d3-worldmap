@@ -1,56 +1,40 @@
-import * as worldmap from './worldmap';
-import * as controls from './controls';
-import * as topdst from './topdst';
-import {isObject} from './utils';
-
-const URL_MAPDATA        = '/data/world-map.json';
-const URL_TRANSFERS      = 'http://localhost:9090/transfers';
-const ERR_MALFORMED_DATA = 'Data is malformed. Expected array, got';
-const AUTOPLAY           = false;
+import d3 from 'd3';
+import Worldmap from './worldmap';
+import Controls from './controls';
+import TopDst from './topdst';
+import Data from './data';
 
 /**
  * Application entry
  */
 export default function main () {
-  // fetch map data
-  let pWorldMap = new Promise((resolve, reject) => {
-    d3.json(URL_MAPDATA, (err, data) => {
-      if (err) { reject(err); }
-      resolve(data);
-    });
-  });
-
-  // fetch traffic data
-  let pTraffic = new Promise((resolve, reject) => {
-    d3.json(URL_TRANSFERS, (err, data) => {
-      if (err) { reject(err); }
-
-      if (isObject(data) &&
-        -1 !== Object.keys(data).indexOf('displayName') &&
-        -1 !== Object.keys(data).indexOf('message')) {
-        reject(data.message);
-      }
-
-      if (!Array.isArray(data)) {
-        let actual = typeof data,
-            e      = new TypeError(`${ERR_MALFORMED_DATA} ${actual}`);
-        reject(e);
-      }
-
-      resolve(data);
-    });
-  });
+  // fetch data
+  let pWorldMap = Data.fetchMap(),
+      pTraffic  = Data.fetchTraffic();
 
   // when they are both loaded
   Promise.all([pWorldMap, pTraffic]).then((data) => {
-    let mapdata = data[0],
-        traffic = data[1],
-        wrap    = d3.select('#wrap');
+    let wrap = d3.select('#wrap'),
+        map, ctrl, top;
 
-    // init the map and initialize the controls
-    worldmap.init(wrap, mapdata);
-    controls.init(wrap, traffic, AUTOPLAY);
-    topdst.init(wrap, traffic);
+    // create the map and controls
+    map  = new Worldmap(wrap, data[0]);
+    ctrl = new Controls(wrap, map, data[1]);
+    top  = new TopDst(wrap, data[1]);
+
+    // fetch traffic again on date change
+    ctrl.controls.on('datechange', () => {
+      let detail = d3.event.detail;
+
+      Data.fetchTraffic({
+        dateIn : detail.dateIn.getTime(),
+        dateOut: detail.dateOut.getTime()
+      }).then((data) => {
+        ctrl.data = data;
+        top.data  = data;
+      });
+    });
+
   }, (err) => {
     // error in console
     console.error(err);
