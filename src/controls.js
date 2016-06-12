@@ -321,21 +321,25 @@ export default class Controls {
       .attr('value', minDate)
       .on('change', this.onChange(data));
 
-    this._dateInPicker = new Pikaday({
-      field         : this.dateInField,
-      defaultDate   : new Date(minDate),
-      setDefaultDate: true,
-      format        : DATE_FORMAT,
-      onSelect      : this.onDateSelect.bind(this)
-    });
+    if (!this.dateInPicker) {
+      this._dateInPicker = new Pikaday({
+        field         : this.dateInField,
+        defaultDate   : new Date(minDate),
+        setDefaultDate: true,
+        format        : DATE_FORMAT,
+        onSelect      : this.onDateSelect.bind(this)
+      });
+    }
 
-    this._dateOutPicker = new Pikaday({
-      field         : this.dateOutField,
-      defaultDate   : new Date(maxDate),
-      setDefaultDate: true,
-      format        : DATE_FORMAT,
-      onSelect      : this.onDateSelect.bind(this)
-    });
+    if (!this.dateOutPicker) {
+      this._dateOutPicker = new Pikaday({
+        field         : this.dateOutField,
+        defaultDate   : new Date(maxDate),
+        setDefaultDate: true,
+        format        : DATE_FORMAT,
+        onSelect      : this.onDateSelect.bind(this)
+      });
+    }
 
     this.legend.select('div')
       .text(utils.humanFileSize(maxBytes));
