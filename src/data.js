@@ -1,5 +1,5 @@
 import d3 from 'd3';
-import {isObject} from './utils';
+import {isObject, toQueryString} from './utils';
 
 const URL_MAPDATA        = '/data/world-map.json';
 const URL_TRANSFERS      = 'http://localhost:9090/transfers';
@@ -25,10 +25,10 @@ export default class Data {
    * @returns {Promise}
    */
   static fetchTraffic (filters = null) {
-    console.log(filters);
+    let qs = isObject(filters) ? toQueryString(filters) : '';
 
     return new Promise((resolve, reject) => {
-      d3.json(URL_TRANSFERS, (err, data) => {
+      d3.json(URL_TRANSFERS + qs, (err, data) => {
         if (err) { reject(err); }
 
         if (isObject(data) &&
