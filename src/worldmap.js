@@ -312,9 +312,9 @@ export default class Worldmap {
   /**
    * Factory function for drag handler
    *
-   * Creates a function
+   * Creates a function that when the Ctrl key is pressed if the
+   * projection is orthographic, rotates the projection.
    *
-   * @param   {d3.selection}  container
    * @returns {Function}
    */
   onDrag () {
