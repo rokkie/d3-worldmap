@@ -224,7 +224,7 @@ export default class Controls {
    * Pause playback
    */
   pause () {
-    clearInterval(this._interval);
+    clearInterval(this.interval);
     this._state = STATE_PAUSED;
 
     this.container.select('.playpause')
